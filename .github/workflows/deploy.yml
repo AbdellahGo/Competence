@@ -8,26 +8,17 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+      - name: Deploy application
+        run: |
+          cd /var/www/html/Competence
 
-          script: |
-            cd /var/www/html/Competence
+          echo "Fetching latest changes..."
+          git fetch origin
 
-            echo "Fetching latest changes..."
-            git fetch origin
+          echo "Deploying branch: $GITHUB_REF_NAME"
+          git checkout -B "$GITHUB_REF_NAME" "origin/$GITHUB_REF_NAME"
 
-            echo "Deploying branch: ${{ github.ref_name }}"
-
-            git checkout ${{ github.ref_name }}
-
-            git reset --hard origin/${{ github.ref_name }}
-
-            echo "Deployment completed successfully."
+          echo "Deployment completed successfully."
